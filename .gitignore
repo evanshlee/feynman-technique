@@ -1,0 +1,26 @@
+# Session output directory (created at runtime)
+feynman-sessions/
+
+# Feynman live companion runtime state
+feynman-companion/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# Node (if tooling added later)
+node_modules/
+
+# Python (if tooling added later)
+__pycache__/
+*.pyc
+.venv/

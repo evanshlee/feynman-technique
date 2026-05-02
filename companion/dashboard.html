@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Feynman Live Companion</title>
+    <link rel="icon" href="data:,">
+    <style>
+      :root {
+        --page-bg: #10141f;
+        --panel-bg: #0f1320;
+        --panel-border: #232838;
+        --text: #e6e9f2;
+        --muted: #a4abbf;
+        --label: #6b7390;
+        --accent: #5b8def;
+        --probe-bg-from: #1d3a8a;
+        --probe-bg-to: #3b5fc7;
+        --done-bg: #0f4a30;
+        --done-fg: #a8e1c4;
+        --done: #116846;
+        --active-bg: #4a3300;
+        --active-fg: #ffd699;
+        --active: #9a5b00;
+        --pending-bg: #1a1f2e;
+        --pending-fg: #6b7390;
+        --pending: #6b7390;
+        --danger: #ef6b6b;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        background: var(--page-bg);
+        color: var(--text);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
+        line-height: 1.55;
+      }
+
+      .shell {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 24px 0 36px;
+      }
+
+      h1, h2, h3, h4, p { margin: 0; }
+
+      header.topbar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: end;
+        margin-bottom: 16px;
+      }
+      .topbar .label { color: var(--label); font-size: 0.7rem; letter-spacing: 0.06em; }
+      .lang-en .topbar .label { text-transform: uppercase; }
+      .topbar h1 { font-size: 1.25rem; line-height: 1.3; color: var(--text); font-weight: 600; word-break: keep-all; }
+      .topbar .round-badge { color: var(--muted); font-size: 0.85rem; white-space: nowrap; }
+
+      .error {
+        display: none;
+        margin-bottom: 16px;
+        padding: 10px 14px;
+        border: 1px solid var(--danger);
+        border-radius: 8px;
+        color: var(--danger);
+        background: rgba(239, 107, 107, 0.06);
+        font-weight: 600;
+      }
+      .error.is-visible { display: block; }
+
+      /* Tier 1: Probe stage */
+      .probe-stage {
+        background: linear-gradient(135deg, var(--probe-bg-from) 0%, var(--probe-bg-to) 100%);
+        border: 1px solid var(--accent);
+        border-radius: 12px;
+        padding: 32px 28px;
+        color: #ffffff;
+        margin-bottom: 18px;
+        min-height: 30vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .probe-stage .stage-label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        color: rgba(255, 255, 255, 0.78);
+        margin-bottom: 12px;
+      }
+      .probe-stage .probe-text {
+        font-size: 1.45rem;
+        line-height: 1.55;
+        font-weight: 600;
+        word-break: keep-all;
+      }
+
+      /* Tier 2: supporting context */
+      .panel {
+        background: var(--panel-bg);
+        border: 1px solid var(--panel-border);
+        border-radius: 8px;
+        padding: 14px 16px;
+        margin-bottom: 12px;
+      }
+      .panel h2 {
+        font-size: 0.78rem;
+        color: var(--muted);
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        margin-bottom: 10px;
+      }
+      .lang-en .panel h2 { text-transform: uppercase; }
+
+      .mastery-strip { display: flex; gap: 8px; }
+      .mastery-strip .chip {
+        flex: 1;
+        min-height: 32px;
+        border-radius: 6px;
+        background: var(--pending-bg);
+        border: 1px solid var(--panel-border);
+        color: var(--pending-fg);
+        font-size: 0.78rem;
+        padding: 6px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        word-break: keep-all;
+      }
+      .mastery-strip .chip.done   { background: var(--done-bg);   border-color: var(--done);   color: var(--done-fg); }
+      .mastery-strip .chip.active { background: var(--active-bg); border-color: var(--active); color: var(--active-fg); font-weight: 600; }
+
+      .round-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .mini-card {
+        background: var(--page-bg);
+        border: 1px solid var(--panel-border);
+        border-radius: 6px;
+        padding: 10px 12px;
+      }
+      .mini-card.wide { grid-column: 1 / -1; }
+      .mini-card h4 { font-size: 0.72rem; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+      .lang-en .mini-card h4 { text-transform: uppercase; letter-spacing: 0.04em; }
+      .mini-card p { font-size: 0.92rem; color: var(--text); word-break: keep-all; }
+      .mini-card p.empty { color: var(--label); }
+      .mini-card.quote p { color: var(--muted); font-style: italic; }
+
+      /* Tier 3: round history (collapsible) */
+      details.panel summary {
+        cursor: pointer;
+        font-size: 0.78rem;
+        color: var(--muted);
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      details.panel summary::-webkit-details-marker { display: none; }
+      .lang-en details.panel summary { text-transform: uppercase; }
+      details.panel summary::before {
+        content: '\25B8';
+        font-size: 0.7rem;
+        color: var(--label);
+        transition: transform 0.15s;
+      }
+      details.panel[open] summary::before { transform: rotate(90deg); }
+      .history-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+      .history-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 10px;
+        border: 1px solid var(--panel-border);
+        border-radius: 6px;
+        background: var(--page-bg);
+        font-size: 0.85rem;
+      }
+      .history-row .left { color: var(--text); word-break: keep-all; }
+      .history-row .right { color: var(--muted); font-size: 0.78rem; white-space: nowrap; }
+
+      /* Tier 4: footer meta */
+      .session-meta {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        padding: 10px 4px 0;
+        font-size: 0.74rem;
+        color: var(--label);
+      }
+      .session-meta strong { color: var(--muted); font-weight: 600; margin-right: 4px; }
+
+      @media (max-width: 760px) {
+        .shell { width: min(100% - 24px, 1180px); padding: 16px 0 24px; }
+        .probe-stage { padding: 22px 18px; min-height: 25vh; }
+        .probe-stage .probe-text { font-size: 1.2rem; }
+        .round-grid { grid-template-columns: 1fr; }
+        header.topbar { grid-template-columns: 1fr; align-items: start; }
+      }
+    </style>
+  </head>
+  <body class="lang-en">
+    <div class="shell">
+      <header class="topbar">
+        <div>
+          <span class="label" id="concept-label">Concept</span>
+          <h1 id="concept">Untitled concept</h1>
+        </div>
+        <div class="round-badge" id="round-badge">Round 0 &middot; inactive</div>
+      </header>
+
+      <section class="error" id="companion-error" aria-live="polite"></section>
+
+      <section class="probe-stage" id="probe-stage">
+        <div class="stage-label" id="probe-stage-label">&#9654; Your next move</div>
+        <p class="probe-text" id="probe">Start a Feynman session in the terminal.</p>
+      </section>
+
+      <section class="panel">
+        <h2 id="mastery-heading">Mastery</h2>
+        <div class="mastery-strip" id="mastery-strip"></div>
+      </section>
+
+      <section class="panel">
+        <h2 id="current-round-heading">Current round</h2>
+        <div class="round-grid" id="current-round">
+          <div class="mini-card">
+            <h4 id="gap-category-label">Gap category</h4>
+            <p id="gap-category" class="empty">&mdash;</p>
+          </div>
+          <div class="mini-card">
+            <h4 id="gap-summary-label">Gap summary</h4>
+            <p id="gap-summary" class="empty">&mdash;</p>
+          </div>
+          <div class="mini-card wide quote">
+            <h4 id="last-quote-label">Your last quote</h4>
+            <p id="learner-quote" class="empty">&mdash;</p>
+          </div>
+        </div>
+      </section>
+
+      <details class="panel" id="round-history">
+        <summary id="round-history-heading">Round history</summary>
+        <div class="history-list" id="round-history-list"></div>
+      </details>
+
+      <footer class="session-meta" id="session-meta"></footer>
+    </div>
+
+    <script>
+      const STRINGS = {
+        en: {
+          concept: 'Concept',
+          probeStageLabel: '▶ Your next move',
+          mastery: 'Mastery',
+          currentRound: 'Current round',
+          gapCategory: 'Gap category',
+          gapSummary: 'Gap summary',
+          lastQuote: 'Your last quote',
+          roundHistory: 'Round history',
+          metaLog: 'Log',
+          metaUpdated: 'Updated',
+          metaScaffold: 'Scaffold',
+          scaffoldNone: 'none',
+          scaffoldUsed: 'used',
+          noQuote: 'No learner quote yet.',
+          noGapCategory: 'No gap category yet.',
+          noGapSummary: 'No gap summary yet.',
+          noProbe: 'Start a Feynman session in the terminal.',
+          noHistory: 'No completed rounds yet.',
+          noEvidence: 'No evidence recorded yet.',
+          notWritten: 'Not written yet',
+          notUpdated: 'Not updated yet',
+          roundN: function (n) { return 'Round ' + n; },
+          roundProgress: function (n, status) { return 'Round ' + n + ' · ' + status; },
+          status: {
+            'inactive': 'inactive',
+            'in-progress': 'in progress',
+            'mastered': 'mastered',
+            'paused': 'paused'
+          },
+          'criterion.termIndependence': 'Term independence',
+          'criterion.causalChain': 'Causal chain',
+          'criterion.mechanismTransparency': 'Mechanism transparency',
+          'criterion.boundaryDifferentiation': 'Boundary differentiation',
+          'criterion.stressTestPass': 'Stress-test pass'
+        },
+        ko: {
+          concept: '주제',
+          probeStageLabel: '▶ 이 질문에 답해보세요',
+          mastery: '숙달 단계',
+          currentRound: '이번 라운드',
+          gapCategory: '막힌 부분',
+          gapSummary: '어떻게 막혔나',
+          lastQuote: '방금 한 말',
+          roundHistory: '지난 라운드',
+          metaLog: '기록',
+          metaUpdated: '업데이트',
+          metaScaffold: '도움',
+          scaffoldNone: '힌트 없이',
+          scaffoldUsed: '힌트 받음',
+          noQuote: '아직 한 말이 없습니다.',
+          noGapCategory: '아직 막힌 부분이 없습니다.',
+          noGapSummary: '아직 분석된 내용이 없습니다.',
+          noProbe: '터미널에서 Feynman 세션을 시작하세요.',
+          noHistory: '아직 완료된 라운드가 없습니다.',
+          noEvidence: '아직 근거가 기록되지 않았습니다.',
+          notWritten: '아직 기록되지 않음',
+          notUpdated: '아직 업데이트 없음',
+          roundN: function (n) { return n + '라운드'; },
+          roundProgress: function (n, status) { return n + '라운드 · ' + status; },
+          status: {
+            'inactive': '비활성',
+            'in-progress': '진행 중',
+            'mastered': '통달',
+            'paused': '일시정지'
+          },
+          'criterion.termIndependence': '쉬운 말로 설명',
+          'criterion.causalChain': '존재 이유 짚기',
+          'criterion.mechanismTransparency': '작동 원리 파악',
+          'criterion.boundaryDifferentiation': '적용 경계 구분',
+          'criterion.stressTestPass': '압박 검증 통과'
+        }
+      };
+
+      const emptySnapshot = {
+        concept: 'Untitled concept',
+        status: 'inactive',
+        round: 0,
+        currentLearnerQuote: '',
+        currentGapCategory: '',
+        currentGapSummary: '',
+        currentProbe: 'Start a Feynman session in the terminal.',
+        masteryCriteria: [],
+        scaffoldState: { status: 'none', summary: '' },
+        roundHistory: [],
+        sessionLogPath: '',
+        updatedAt: '',
+        language: 'en'
+      };
+
+      const masteryOrder = [
+        'termIndependence',
+        'causalChain',
+        'mechanismTransparency',
+        'boundaryDifferentiation',
+        'stressTestPass'
+      ];
+
+      function t(lang, key) {
+        const bundle = STRINGS[lang] || STRINGS.en;
+        if (bundle[key] !== undefined) return bundle[key];
+        if (STRINGS.en[key] !== undefined) return STRINGS.en[key];
+        return key;
+      }
+
+      async function loadState() {
+        try {
+          const response = await fetch('/state', { cache: 'no-store' });
+          const body = await response.json();
+          renderState(body);
+        } catch (error) {
+          renderState({
+            ok: false,
+            error: error instanceof Error ? error.message : String(error),
+            snapshot: emptySnapshot,
+            statePath: ''
+          });
+        }
+      }
+
+      function renderState(body) {
+        body = body || {};
+        const snapshot = Object.assign({}, emptySnapshot, body.snapshot || {});
+        const lang = snapshot.language === 'ko' ? 'ko' : 'en';
+
+        document.body.classList.remove('lang-en', 'lang-ko');
+        document.body.classList.add('lang-' + lang);
+        document.documentElement.lang = lang;
+
+        renderHeader(snapshot, lang);
+        renderProbe(snapshot, lang);
+        renderMastery(snapshot.masteryCriteria, lang);
+        renderRoundContext(snapshot, lang);
+        renderHistory(snapshot.roundHistory, lang);
+        renderMeta(snapshot, body.statePath || '', lang);
+        renderError(body);
+      }
+
+      function renderHeader(snapshot, lang) {
+        setText('concept-label', t(lang, 'concept'));
+        setText('concept', snapshot.concept || emptySnapshot.concept);
+        const statusLabel = STRINGS[lang].status[snapshot.status] || snapshot.status || '';
+        setText('round-badge', STRINGS[lang].roundProgress(snapshot.round || 0, statusLabel));
+      }
+
+      function renderProbe(snapshot, lang) {
+        setText('probe-stage-label', t(lang, 'probeStageLabel'));
+        setText('probe', snapshot.currentProbe || t(lang, 'noProbe'));
+      }
+
+      function renderMastery(criteria, lang) {
+        setText('mastery-heading', t(lang, 'mastery'));
+        const strip = document.getElementById('mastery-strip');
+        strip.replaceChildren();
+
+        const byId = new Map(
+          Array.isArray(criteria)
+            ? criteria
+                .filter(function (c) { return c && c.id; })
+                .map(function (c) { return [c.id, c]; })
+            : []
+        );
+
+        for (const id of masteryOrder) {
+          const criterion = byId.get(id) || { status: 'pending' };
+          const status = ['done', 'active', 'pending'].includes(criterion.status) ? criterion.status : 'pending';
+          const label = t(lang, 'criterion.' + id);
+          const chip = element('div', 'chip ' + status, label);
+          chip.title = criterion.evidence || t(lang, 'noEvidence');
+          strip.append(chip);
+        }
+      }
+
+      function renderRoundContext(snapshot, lang) {
+        setText('current-round-heading', t(lang, 'currentRound'));
+        setText('gap-category-label', t(lang, 'gapCategory'));
+        setText('gap-summary-label', t(lang, 'gapSummary'));
+        setText('last-quote-label', t(lang, 'lastQuote'));
+
+        setMiniCard('gap-category', snapshot.currentGapCategory, t(lang, 'noGapCategory'));
+        setMiniCard('gap-summary', snapshot.currentGapSummary, t(lang, 'noGapSummary'));
+        setMiniCard('learner-quote', snapshot.currentLearnerQuote, t(lang, 'noQuote'));
+      }
+
+      function setMiniCard(id, value, fallback) {
+        const node = document.getElementById(id);
+        if (value) {
+          node.textContent = value;
+          node.classList.remove('empty');
+        } else {
+          node.textContent = fallback;
+          node.classList.add('empty');
+        }
+      }
+
+      function renderHistory(roundHistory, lang) {
+        setText('round-history-heading', t(lang, 'roundHistory'));
+        const list = document.getElementById('round-history-list');
+        list.replaceChildren();
+
+        if (!Array.isArray(roundHistory) || roundHistory.length === 0) {
+          list.append(element('p', 'empty', t(lang, 'noHistory')));
+          return;
+        }
+
+        for (const item of roundHistory) {
+          const row = element('div', 'history-row');
+          const left = element('span', 'left',
+            STRINGS[lang].roundN(item.round || '-') + ' · ' + (item.gapCategory || '—'));
+          const right = element('span', 'right',
+            item.scaffoldUsed ? t(lang, 'scaffoldUsed') : t(lang, 'scaffoldNone'));
+          row.append(left, right);
+          list.append(row);
+        }
+      }
+
+      function renderMeta(snapshot, statePath, lang) {
+        const meta = document.getElementById('session-meta');
+        meta.replaceChildren();
+
+        meta.append(metaItem(t(lang, 'metaLog'), snapshot.sessionLogPath || t(lang, 'notWritten')));
+        meta.append(metaItem(t(lang, 'metaUpdated'), snapshot.updatedAt || t(lang, 'notUpdated')));
+        const scaffoldStatus = (snapshot.scaffoldState && snapshot.scaffoldState.status) || 'none';
+        const scaffoldLabel = scaffoldStatus === 'none' ? t(lang, 'scaffoldNone') : scaffoldStatus;
+        meta.append(metaItem(t(lang, 'metaScaffold'), scaffoldLabel));
+      }
+
+      function metaItem(label, value) {
+        const span = document.createElement('span');
+        const strong = document.createElement('strong');
+        strong.textContent = label + ':';
+        span.append(strong, document.createTextNode(' ' + value));
+        return span;
+      }
+
+      function renderError(body) {
+        const error = document.getElementById('companion-error');
+        if (body && body.ok === false) {
+          error.textContent = body.error || 'Companion state is not available.';
+          error.classList.add('is-visible');
+          return;
+        }
+        error.textContent = '';
+        error.classList.remove('is-visible');
+      }
+
+      function setText(id, value) {
+        document.getElementById(id).textContent = value;
+      }
+
+      function element(tagName, className, text) {
+        const node = document.createElement(tagName);
+        if (className) node.className = className;
+        if (text !== undefined && text !== '') node.textContent = text;
+        return node;
+      }
+
+      loadState();
+      setInterval(loadState, 1000);
+    </script>
+  </body>
+</html>
