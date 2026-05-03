@@ -26,6 +26,19 @@
         --pending-fg: #6b7390;
         --pending: #6b7390;
         --danger: #ef6b6b;
+        --praise: #1f4a3a;
+        --praise-fg: #b6e9cf;
+        --praise-border: #2f7e5d;
+        --scaffold-bg: #2c1f0a;
+        --scaffold-fg: #ffd9a3;
+        --scaffold-border: #8b5a1a;
+        --gap-bg: #2a1820;
+        --gap-fg: #f4b6c0;
+        --gap-border: #7a3047;
+        --primer-bg: #1a2640;
+        --primer-fg: #cfe0ff;
+        --primer-border: #3b5a92;
+        --primer-accent: #7ea8ff;
       }
 
       * { box-sizing: border-box; }
@@ -36,7 +49,7 @@
         color: var(--text);
         font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
           "Segoe UI", "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
-        line-height: 1.55;
+        line-height: 1.6;
       }
 
       .shell {
@@ -76,10 +89,9 @@
         background: linear-gradient(135deg, var(--probe-bg-from) 0%, var(--probe-bg-to) 100%);
         border: 1px solid var(--accent);
         border-radius: 12px;
-        padding: 32px 28px;
+        padding: 28px 28px;
         color: #ffffff;
         margin-bottom: 18px;
-        min-height: 30vh;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -96,6 +108,195 @@
         line-height: 1.55;
         font-weight: 600;
         word-break: keep-all;
+        white-space: pre-wrap;
+      }
+
+      /* Praise / acknowledgement banner */
+      .praise-banner {
+        background: var(--praise);
+        border: 1px solid var(--praise-border);
+        color: var(--praise-fg);
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-bottom: 14px;
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        font-size: 0.97rem;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        word-break: keep-all;
+      }
+      .praise-banner.hidden { display: none; }
+      .praise-banner .icon { font-size: 1.15rem; line-height: 1.5; }
+      .praise-banner .text { flex: 1; }
+
+      /* Gap callout */
+      .gap-callout {
+        background: var(--gap-bg);
+        border: 1px solid var(--gap-border);
+        border-radius: 10px;
+        padding: 16px 18px;
+        margin-bottom: 14px;
+      }
+      .gap-callout.hidden { display: none; }
+      .gap-callout .gap-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .gap-callout .gap-head .icon { font-size: 1rem; }
+      .gap-callout .gap-head .gap-cat {
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        font-size: 0.85rem;
+        color: var(--gap-fg);
+        font-weight: 600;
+        background: rgba(244, 182, 192, 0.08);
+        padding: 2px 8px;
+        border-radius: 4px;
+      }
+      .gap-callout .gap-summary {
+        color: var(--text);
+        font-size: 0.97rem;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        word-break: keep-all;
+      }
+      .gap-callout .quote-strip {
+        margin-top: 10px;
+        padding: 8px 12px;
+        border-left: 3px solid var(--gap-border);
+        color: var(--muted);
+        font-style: italic;
+        font-size: 0.92rem;
+        white-space: pre-wrap;
+        word-break: keep-all;
+      }
+
+      /* Scaffold panel (when active) */
+      .scaffold-panel {
+        background: var(--scaffold-bg);
+        border: 1px solid var(--scaffold-border);
+        border-radius: 10px;
+        padding: 18px 20px;
+        margin-bottom: 14px;
+      }
+      .scaffold-panel.hidden { display: none; }
+      .scaffold-panel .scaf-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        font-weight: 700;
+        color: var(--scaffold-fg);
+        font-size: 1.02rem;
+      }
+      .scaffold-panel .scaf-section {
+        margin-top: 14px;
+      }
+      .scaffold-panel .scaf-section h4 {
+        font-size: 0.74rem;
+        letter-spacing: 0.06em;
+        font-weight: 700;
+        color: var(--scaffold-fg);
+        margin-bottom: 6px;
+      }
+      .scaffold-panel .scaf-section p {
+        color: var(--text);
+        font-size: 0.97rem;
+        line-height: 1.65;
+        white-space: pre-wrap;
+        word-break: keep-all;
+      }
+      .scaffold-panel .scaf-section.example p {
+        background: rgba(255, 255, 255, 0.04);
+        border-left: 3px solid var(--scaffold-border);
+        padding: 10px 14px;
+        border-radius: 4px;
+        font-family: ui-sans-serif, system-ui;
+      }
+
+      /* Primer panel (active during primer mode) */
+      .primer-panel {
+        background: var(--primer-bg);
+        border: 1px solid var(--primer-border);
+        border-radius: 12px;
+        padding: 22px 24px;
+        margin-bottom: 16px;
+      }
+      .primer-panel.hidden { display: none; }
+      .primer-panel.collapsed .primer-cards { display: none; }
+      .primer-panel.collapsed .primer-head .toggle::after { content: '\25B8'; }
+      .primer-panel .primer-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .primer-panel .primer-head .title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--primer-fg);
+        font-weight: 700;
+        font-size: 1.05rem;
+      }
+      .primer-panel .primer-head .title .badge {
+        background: var(--primer-accent);
+        color: #0a1530;
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 2px 8px;
+        border-radius: 999px;
+        letter-spacing: 0.06em;
+      }
+      .primer-panel .primer-head .toggle {
+        background: transparent;
+        border: 1px solid var(--primer-border);
+        color: var(--primer-fg);
+        font-size: 0.78rem;
+        padding: 4px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .primer-panel .primer-head .toggle::after {
+        content: '\25BE';
+        margin-left: 6px;
+      }
+      .primer-cards {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      .primer-card {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--primer-border);
+        border-radius: 8px;
+        padding: 12px 14px;
+      }
+      .primer-card.wide { grid-column: 1 / -1; }
+      .primer-card h4 {
+        font-size: 0.72rem;
+        letter-spacing: 0.06em;
+        color: var(--primer-accent);
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+      .primer-card p, .primer-card li {
+        color: var(--text);
+        font-size: 0.94rem;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: keep-all;
+      }
+      .primer-card ol {
+        margin: 0;
+        padding-left: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
       }
 
       /* Tier 2: supporting context */
@@ -134,23 +335,16 @@
       .mastery-strip .chip.done   { background: var(--done-bg);   border-color: var(--done);   color: var(--done-fg); }
       .mastery-strip .chip.active { background: var(--active-bg); border-color: var(--active); color: var(--active-fg); font-weight: 600; }
 
-      .round-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-      }
-      .mini-card {
+      .quote-card {
         background: var(--page-bg);
         border: 1px solid var(--panel-border);
         border-radius: 6px;
-        padding: 10px 12px;
+        padding: 12px 14px;
       }
-      .mini-card.wide { grid-column: 1 / -1; }
-      .mini-card h4 { font-size: 0.72rem; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
-      .lang-en .mini-card h4 { text-transform: uppercase; letter-spacing: 0.04em; }
-      .mini-card p { font-size: 0.92rem; color: var(--text); word-break: keep-all; }
-      .mini-card p.empty { color: var(--label); }
-      .mini-card.quote p { color: var(--muted); font-style: italic; }
+      .quote-card h4 { font-size: 0.72rem; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+      .lang-en .quote-card h4 { text-transform: uppercase; letter-spacing: 0.04em; }
+      .quote-card p { font-size: 0.92rem; color: var(--muted); font-style: italic; word-break: keep-all; white-space: pre-wrap; }
+      .quote-card p.empty { color: var(--label); font-style: normal; }
 
       /* Tier 3: round history (collapsible) */
       details.panel summary {
@@ -200,9 +394,8 @@
 
       @media (max-width: 760px) {
         .shell { width: min(100% - 24px, 1180px); padding: 16px 0 24px; }
-        .probe-stage { padding: 22px 18px; min-height: 25vh; }
+        .probe-stage { padding: 22px 18px; }
         .probe-stage .probe-text { font-size: 1.2rem; }
-        .round-grid { grid-template-columns: 1fr; }
         header.topbar { grid-template-columns: 1fr; align-items: start; }
       }
     </style>
@@ -219,9 +412,77 @@
 
       <section class="error" id="companion-error" aria-live="polite"></section>
 
+      <section class="primer-panel hidden" id="primer-panel">
+        <div class="primer-head">
+          <div class="title">
+            <span>📚</span>
+            <span id="primer-title-text">Primer</span>
+            <span class="badge" id="primer-badge">PRIMER</span>
+          </div>
+          <button type="button" class="toggle" id="primer-toggle">
+            <span id="primer-toggle-label">Hide</span>
+          </button>
+        </div>
+        <div class="primer-cards" id="primer-cards">
+          <div class="primer-card wide" id="primer-card-simple">
+            <h4 id="primer-label-simple">Simple explanation</h4>
+            <p id="primer-text-simple"></p>
+          </div>
+          <div class="primer-card" id="primer-card-analogy">
+            <h4 id="primer-label-analogy">Analogy</h4>
+            <p id="primer-text-analogy"></p>
+          </div>
+          <div class="primer-card" id="primer-card-limit">
+            <h4 id="primer-label-limit">Analogy limit</h4>
+            <p id="primer-text-limit"></p>
+          </div>
+          <div class="primer-card wide" id="primer-card-example">
+            <h4 id="primer-label-example">Concrete example</h4>
+            <p id="primer-text-example"></p>
+          </div>
+          <div class="primer-card wide" id="primer-card-checks">
+            <h4 id="primer-label-checks">Understanding checks</h4>
+            <ol id="primer-text-checks"></ol>
+          </div>
+        </div>
+      </section>
+
       <section class="probe-stage" id="probe-stage">
         <div class="stage-label" id="probe-stage-label">&#9654; Your next move</div>
         <p class="probe-text" id="probe">Start a Feynman session in the terminal.</p>
+      </section>
+
+      <section class="praise-banner hidden" id="praise-banner">
+        <span class="icon">✅</span>
+        <span class="text" id="praise-text"></span>
+      </section>
+
+      <section class="gap-callout hidden" id="gap-callout">
+        <div class="gap-head">
+          <span class="icon">🔍</span>
+          <span class="gap-cat" id="gap-cat-pill"></span>
+        </div>
+        <div class="gap-summary" id="gap-summary-text"></div>
+        <div class="quote-strip" id="gap-quote-strip"></div>
+      </section>
+
+      <section class="scaffold-panel hidden" id="scaffold-panel">
+        <div class="scaf-head">
+          <span>🧱</span>
+          <span id="scaffold-head-label">Scaffold</span>
+        </div>
+        <div class="scaf-section" id="scaffold-summary-section">
+          <h4 id="scaffold-summary-label">Stuck point</h4>
+          <p id="scaffold-summary-text"></p>
+        </div>
+        <div class="scaf-section" id="scaffold-mini-section">
+          <h4 id="scaffold-mini-label">Mini explanation</h4>
+          <p id="scaffold-mini-text"></p>
+        </div>
+        <div class="scaf-section example" id="scaffold-example-section">
+          <h4 id="scaffold-example-label">Concrete example</h4>
+          <p id="scaffold-example-text"></p>
+        </div>
       </section>
 
       <section class="panel">
@@ -230,20 +491,9 @@
       </section>
 
       <section class="panel">
-        <h2 id="current-round-heading">Current round</h2>
-        <div class="round-grid" id="current-round">
-          <div class="mini-card">
-            <h4 id="gap-category-label">Gap category</h4>
-            <p id="gap-category" class="empty">&mdash;</p>
-          </div>
-          <div class="mini-card">
-            <h4 id="gap-summary-label">Gap summary</h4>
-            <p id="gap-summary" class="empty">&mdash;</p>
-          </div>
-          <div class="mini-card wide quote">
-            <h4 id="last-quote-label">Your last quote</h4>
-            <p id="learner-quote" class="empty">&mdash;</p>
-          </div>
+        <h2 id="last-quote-heading">Your last quote</h2>
+        <div class="quote-card">
+          <p id="learner-quote" class="empty">&mdash;</p>
         </div>
       </section>
 
@@ -261,19 +511,18 @@
           concept: 'Concept',
           probeStageLabel: '▶ Your next move',
           mastery: 'Mastery',
-          currentRound: 'Current round',
-          gapCategory: 'Gap category',
-          gapSummary: 'Gap summary',
-          lastQuote: 'Your last quote',
+          lastQuoteHeading: 'Your last quote',
           roundHistory: 'Round history',
           metaLog: 'Log',
           metaUpdated: 'Updated',
           metaScaffold: 'Scaffold',
           scaffoldNone: 'none',
           scaffoldUsed: 'used',
+          scaffoldHead: 'Scaffold (hint)',
+          scaffoldSummaryLabel: 'Stuck point',
+          scaffoldMiniLabel: 'Mini explanation',
+          scaffoldExampleLabel: 'Concrete example',
           noQuote: 'No learner quote yet.',
-          noGapCategory: 'No gap category yet.',
-          noGapSummary: 'No gap summary yet.',
           noProbe: 'Start a Feynman session in the terminal.',
           noHistory: 'No completed rounds yet.',
           noEvidence: 'No evidence recorded yet.',
@@ -291,25 +540,33 @@
           'criterion.causalChain': 'Causal chain',
           'criterion.mechanismTransparency': 'Mechanism transparency',
           'criterion.boundaryDifferentiation': 'Boundary differentiation',
-          'criterion.stressTestPass': 'Stress-test pass'
+          'criterion.stressTestPass': 'Stress-test pass',
+          primerTitle: 'Primer (orientation)',
+          primerBadge: 'PRIMER',
+          primerToggleHide: 'Hide',
+          primerToggleShow: 'Show',
+          primerSimple: 'Simple explanation',
+          primerAnalogy: 'Analogy',
+          primerLimit: 'Analogy limit',
+          primerExample: 'Concrete example',
+          primerChecks: 'Understanding checks'
         },
         ko: {
           concept: '주제',
           probeStageLabel: '▶ 이 질문에 답해보세요',
           mastery: '숙달 단계',
-          currentRound: '이번 라운드',
-          gapCategory: '막힌 부분',
-          gapSummary: '어떻게 막혔나',
-          lastQuote: '방금 한 말',
+          lastQuoteHeading: '방금 한 말',
           roundHistory: '지난 라운드',
           metaLog: '기록',
           metaUpdated: '업데이트',
           metaScaffold: '도움',
           scaffoldNone: '힌트 없이',
           scaffoldUsed: '힌트 받음',
+          scaffoldHead: '스캐폴드 (도움말)',
+          scaffoldSummaryLabel: '막힌 지점',
+          scaffoldMiniLabel: '쉬운 설명',
+          scaffoldExampleLabel: '구체 예시',
           noQuote: '아직 한 말이 없습니다.',
-          noGapCategory: '아직 막힌 부분이 없습니다.',
-          noGapSummary: '아직 분석된 내용이 없습니다.',
           noProbe: '터미널에서 Feynman 세션을 시작하세요.',
           noHistory: '아직 완료된 라운드가 없습니다.',
           noEvidence: '아직 근거가 기록되지 않았습니다.',
@@ -327,7 +584,16 @@
           'criterion.causalChain': '존재 이유 짚기',
           'criterion.mechanismTransparency': '작동 원리 파악',
           'criterion.boundaryDifferentiation': '적용 경계 구분',
-          'criterion.stressTestPass': '압박 검증 통과'
+          'criterion.stressTestPass': '압박 검증 통과',
+          primerTitle: '프라이머 (입문)',
+          primerBadge: '프라이머',
+          primerToggleHide: '접기',
+          primerToggleShow: '펼치기',
+          primerSimple: '쉬운 설명',
+          primerAnalogy: '비유',
+          primerLimit: '비유 한계',
+          primerExample: '구체 예시',
+          primerChecks: '이해 점검'
         }
       };
 
@@ -338,9 +604,19 @@
         currentLearnerQuote: '',
         currentGapCategory: '',
         currentGapSummary: '',
+        currentGapDetail: '',
+        currentPraise: '',
         currentProbe: 'Start a Feynman session in the terminal.',
         masteryCriteria: [],
-        scaffoldState: { status: 'none', summary: '' },
+        scaffoldState: { status: 'none', summary: '', miniExplanation: '', example: '' },
+        primerState: {
+          status: 'none',
+          simpleExplanation: '',
+          analogy: '',
+          analogyLimit: '',
+          concreteExample: '',
+          understandingChecks: []
+        },
         roundHistory: [],
         sessionLogPath: '',
         updatedAt: '',
@@ -380,6 +656,21 @@
       function renderState(body) {
         body = body || {};
         const snapshot = Object.assign({}, emptySnapshot, body.snapshot || {});
+        snapshot.scaffoldState = Object.assign(
+          { status: 'none', summary: '', miniExplanation: '', example: '' },
+          (body.snapshot && body.snapshot.scaffoldState) || {}
+        );
+        snapshot.primerState = Object.assign(
+          {
+            status: 'none',
+            simpleExplanation: '',
+            analogy: '',
+            analogyLimit: '',
+            concreteExample: '',
+            understandingChecks: []
+          },
+          (body.snapshot && body.snapshot.primerState) || {}
+        );
         const lang = snapshot.language === 'ko' ? 'ko' : 'en';
 
         document.body.classList.remove('lang-en', 'lang-ko');
@@ -387,9 +678,13 @@
         document.documentElement.lang = lang;
 
         renderHeader(snapshot, lang);
+        renderPrimer(snapshot, lang);
         renderProbe(snapshot, lang);
+        renderPraise(snapshot, lang);
+        renderGapCallout(snapshot, lang);
+        renderScaffold(snapshot, lang);
         renderMastery(snapshot.masteryCriteria, lang);
-        renderRoundContext(snapshot, lang);
+        renderLastQuote(snapshot, lang);
         renderHistory(snapshot.roundHistory, lang);
         renderMeta(snapshot, body.statePath || '', lang);
         renderError(body);
@@ -405,6 +700,131 @@
       function renderProbe(snapshot, lang) {
         setText('probe-stage-label', t(lang, 'probeStageLabel'));
         setText('probe', snapshot.currentProbe || t(lang, 'noProbe'));
+      }
+
+      function renderPrimer(snapshot, lang) {
+        const panel = document.getElementById('primer-panel');
+        const ps = snapshot.primerState || {};
+        const hasContent = (ps.simpleExplanation || ps.analogy || ps.analogyLimit || ps.concreteExample || (Array.isArray(ps.understandingChecks) && ps.understandingChecks.length));
+        if (ps.status === 'none' || !hasContent) {
+          panel.classList.add('hidden');
+          return;
+        }
+        panel.classList.remove('hidden');
+        if (panel.dataset.userOverride !== '1') {
+          if (ps.status === 'collapsed') panel.classList.add('collapsed');
+          else panel.classList.remove('collapsed');
+        }
+
+        setText('primer-title-text', t(lang, 'primerTitle'));
+        setText('primer-badge', t(lang, 'primerBadge'));
+        setText('primer-toggle-label', panel.classList.contains('collapsed') ? t(lang, 'primerToggleShow') : t(lang, 'primerToggleHide'));
+
+        setText('primer-label-simple', t(lang, 'primerSimple'));
+        setText('primer-label-analogy', t(lang, 'primerAnalogy'));
+        setText('primer-label-limit', t(lang, 'primerLimit'));
+        setText('primer-label-example', t(lang, 'primerExample'));
+        setText('primer-label-checks', t(lang, 'primerChecks'));
+
+        toggleCardSection('primer-card-simple', ps.simpleExplanation, 'primer-text-simple');
+        toggleCardSection('primer-card-analogy', ps.analogy, 'primer-text-analogy');
+        toggleCardSection('primer-card-limit', ps.analogyLimit, 'primer-text-limit');
+        toggleCardSection('primer-card-example', ps.concreteExample, 'primer-text-example');
+
+        const checksCard = document.getElementById('primer-card-checks');
+        const checksList = document.getElementById('primer-text-checks');
+        const checks = Array.isArray(ps.understandingChecks) ? ps.understandingChecks.filter(Boolean) : [];
+        if (checks.length === 0) {
+          checksCard.style.display = 'none';
+        } else {
+          checksCard.style.display = '';
+          checksList.replaceChildren();
+          for (const item of checks) {
+            checksList.append(element('li', '', item));
+          }
+        }
+
+        const toggleBtn = document.getElementById('primer-toggle');
+        if (!toggleBtn.dataset.bound) {
+          toggleBtn.addEventListener('click', () => {
+            const p = document.getElementById('primer-panel');
+            p.classList.toggle('collapsed');
+            p.dataset.userOverride = '1';
+            const lbl = document.getElementById('primer-toggle-label');
+            lbl.textContent = p.classList.contains('collapsed') ? t(lang, 'primerToggleShow') : t(lang, 'primerToggleHide');
+          });
+          toggleBtn.dataset.bound = '1';
+        }
+      }
+
+      function toggleCardSection(cardId, content, textId) {
+        const card = document.getElementById(cardId);
+        if (content && content.trim()) {
+          card.style.display = '';
+          setText(textId, content);
+        } else {
+          card.style.display = 'none';
+        }
+      }
+
+      function renderPraise(snapshot, lang) {
+        const banner = document.getElementById('praise-banner');
+        const text = (snapshot.currentPraise || '').trim();
+        if (text) {
+          setText('praise-text', text);
+          banner.classList.remove('hidden');
+        } else {
+          banner.classList.add('hidden');
+        }
+      }
+
+      function renderGapCallout(snapshot, lang) {
+        const callout = document.getElementById('gap-callout');
+        const cat = (snapshot.currentGapCategory || '').trim();
+        const summary = (snapshot.currentGapSummary || snapshot.currentGapDetail || '').trim();
+        const quote = (snapshot.currentLearnerQuote || '').trim();
+        if (!cat && !summary) {
+          callout.classList.add('hidden');
+          return;
+        }
+        callout.classList.remove('hidden');
+        setText('gap-cat-pill', cat || '—');
+        setText('gap-summary-text', summary);
+        const quoteEl = document.getElementById('gap-quote-strip');
+        if (quote) {
+          quoteEl.textContent = '"' + quote + '"';
+          quoteEl.style.display = '';
+        } else {
+          quoteEl.style.display = 'none';
+        }
+      }
+
+      function renderScaffold(snapshot, lang) {
+        const panel = document.getElementById('scaffold-panel');
+        const sc = snapshot.scaffoldState || {};
+        const active = sc.status && sc.status !== 'none' && (sc.summary || sc.miniExplanation || sc.example);
+        if (!active) {
+          panel.classList.add('hidden');
+          return;
+        }
+        panel.classList.remove('hidden');
+        setText('scaffold-head-label', t(lang, 'scaffoldHead'));
+        setText('scaffold-summary-label', t(lang, 'scaffoldSummaryLabel'));
+        setText('scaffold-mini-label', t(lang, 'scaffoldMiniLabel'));
+        setText('scaffold-example-label', t(lang, 'scaffoldExampleLabel'));
+        toggleSection('scaffold-summary-section', sc.summary, 'scaffold-summary-text');
+        toggleSection('scaffold-mini-section', sc.miniExplanation, 'scaffold-mini-text');
+        toggleSection('scaffold-example-section', sc.example, 'scaffold-example-text');
+      }
+
+      function toggleSection(sectionId, content, textId) {
+        const section = document.getElementById(sectionId);
+        if (content && content.trim()) {
+          section.style.display = '';
+          setText(textId, content);
+        } else {
+          section.style.display = 'none';
+        }
       }
 
       function renderMastery(criteria, lang) {
@@ -430,24 +850,15 @@
         }
       }
 
-      function renderRoundContext(snapshot, lang) {
-        setText('current-round-heading', t(lang, 'currentRound'));
-        setText('gap-category-label', t(lang, 'gapCategory'));
-        setText('gap-summary-label', t(lang, 'gapSummary'));
-        setText('last-quote-label', t(lang, 'lastQuote'));
-
-        setMiniCard('gap-category', snapshot.currentGapCategory, t(lang, 'noGapCategory'));
-        setMiniCard('gap-summary', snapshot.currentGapSummary, t(lang, 'noGapSummary'));
-        setMiniCard('learner-quote', snapshot.currentLearnerQuote, t(lang, 'noQuote'));
-      }
-
-      function setMiniCard(id, value, fallback) {
-        const node = document.getElementById(id);
+      function renderLastQuote(snapshot, lang) {
+        setText('last-quote-heading', t(lang, 'lastQuoteHeading'));
+        const node = document.getElementById('learner-quote');
+        const value = (snapshot.currentLearnerQuote || '').trim();
         if (value) {
-          node.textContent = value;
+          node.textContent = '"' + value + '"';
           node.classList.remove('empty');
         } else {
-          node.textContent = fallback;
+          node.textContent = t(lang, 'noQuote');
           node.classList.add('empty');
         }
       }

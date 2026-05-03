@@ -232,7 +232,7 @@ The skill can mirror live session state into a browser dashboard. This companion
 
 Enable the companion when the user explicitly asks for a live companion, dashboard, or browser view, or when `./feynman-companion/state.json` already exists. The snapshot path defaults to `./feynman-companion/state.json` unless the user provides a different path.
 
-Update the snapshot at kickoff, each learner explanation, each selected gap and probe, each scaffold, mastery announcement, and exit or wrap-up.
+Update the snapshot at kickoff, each learner explanation, each selected gap and probe, each scaffold, mastery announcement, and exit or wrap-up. In primer mode, also populate `primerState` with the five primer sections (simple explanation, analogy, analogy limit, concrete example, understanding checks) when delivering the primer, then mark `primerState.status` as `collapsed` once the learner produces their first independent explanation. The dashboard renders any non-empty `currentPraise`, `scaffoldState.miniExplanation`, `scaffoldState.example`, and `primerState.*` content as dedicated panels so the learner can review the full coaching turn in the browser.
 
 If the snapshot cannot be written, continue the Feynman session normally and mention once that the companion could not update. Never block the learning loop on companion state.
 
@@ -251,7 +251,20 @@ Use this JSON shape:
   "currentLearnerQuote": "JWT is safe because it is signed.",
   "currentGapCategory": "[mechanism-blackbox]",
   "currentGapSummary": "The signature verification step is still hidden.",
+  "currentPraise": "Tamper detection is the right intuition - you're already past the surface.",
   "currentProbe": "Who verifies the signature, and what input do they use?",
+  "primerState": {
+    "status": "collapsed",
+    "simpleExplanation": "A JWT is a signed bearer token...",
+    "analogy": "Think of a wax-sealed envelope.",
+    "analogyLimit": "The envelope's wax can be re-melted; a JWT signature cannot.",
+    "concreteExample": "A login API issues a JWT; the next request includes it as `Authorization: Bearer ...`.",
+    "understandingChecks": [
+      "Why does the server need a signature instead of trusting the token?",
+      "What does the signature actually cover?",
+      "What breaks if the signing key leaks?"
+    ]
+  },
   "masteryCriteria": [
     {
       "id": "termIndependence",
@@ -281,7 +294,9 @@ Use this JSON shape:
   ],
   "scaffoldState": {
     "status": "none",
-    "summary": ""
+    "summary": "",
+    "miniExplanation": "",
+    "example": ""
   },
   "roundHistory": [
     {

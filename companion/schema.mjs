@@ -11,6 +11,7 @@ export const MASTERY_KEYS = Object.freeze([
 const VALID_SESSION_STATUSES = new Set(['inactive', 'in-progress', 'mastered', 'paused']);
 const VALID_CRITERION_STATUSES = new Set(['done', 'active', 'pending']);
 const VALID_SCAFFOLD_STATUSES = new Set(['none', 'suggested', 'shown']);
+const VALID_PRIMER_STATUSES = new Set(['none', 'active', 'collapsed']);
 const VALID_LANGUAGES = new Set(['en', 'ko']);
 
 export function normalizeSnapshot(raw = {}) {
@@ -49,12 +50,17 @@ export function normalizeSnapshot(raw = {}) {
     currentLearnerQuote: asText(source.currentLearnerQuote),
     currentGapCategory: asText(source.currentGapCategory),
     currentGapSummary: asText(source.currentGapSummary),
+    currentGapDetail: asText(source.currentGapDetail),
+    currentPraise: asText(source.currentPraise),
     currentProbe: asText(source.currentProbe) || 'Start a Feynman session in the terminal.',
     masteryCriteria,
     scaffoldState: {
       status: scaffoldStatus,
-      summary: asText(scaffoldSource.summary)
+      summary: asText(scaffoldSource.summary),
+      miniExplanation: asText(scaffoldSource.miniExplanation),
+      example: asText(scaffoldSource.example)
     },
+    primerState: normalizePrimerState(source.primerState),
     roundHistory: normalizeRoundHistory(source.roundHistory),
     sessionLogPath: asText(source.sessionLogPath),
     updatedAt: asText(source.updatedAt),
@@ -77,6 +83,33 @@ export async function readSnapshotFile(filePath) {
       error: error instanceof Error ? error.message : String(error)
     };
   }
+}
+
+function normalizePrimerState(raw) {
+  if (!isPlainObject(raw)) {
+    return {
+      status: 'none',
+      simpleExplanation: '',
+      analogy: '',
+      analogyLimit: '',
+      concreteExample: '',
+      understandingChecks: []
+    };
+  }
+
+  const status = VALID_PRIMER_STATUSES.has(raw.status) ? raw.status : 'none';
+  const checks = Array.isArray(raw.understandingChecks)
+    ? raw.understandingChecks.map(asText).filter((s) => s.length > 0).slice(0, 5)
+    : [];
+
+  return {
+    status,
+    simpleExplanation: asText(raw.simpleExplanation),
+    analogy: asText(raw.analogy),
+    analogyLimit: asText(raw.analogyLimit),
+    concreteExample: asText(raw.concreteExample),
+    understandingChecks: checks
+  };
 }
 
 function normalizeRoundHistory(roundHistory) {
